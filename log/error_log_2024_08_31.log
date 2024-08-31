@@ -1,3 +1,0 @@
-ERROR: 2024/08/31 22:13:52 log.go:69: | 500 |   1.32ms |     [::1]:63480 | GET /api/cache
-ERROR: 2024/08/31 22:13:56 log.go:69: | 500 |   1.23ms |     [::1]:63480 | GET /api/public/accounts
-ERROR: 2024/08/31 22:14:26 log.go:69: | 500 |   1.05ms |     [::1]:63480 | POST /api/public/login
