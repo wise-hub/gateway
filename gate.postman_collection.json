@@ -1,0 +1,203 @@
+{
+	"info": {
+		"_postman_id": "bf57f2e1-5601-4079-b07b-b39b96cb3133",
+		"name": "gate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "prot test",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "valid-token"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"test\": 1234}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8200/api/v1/test123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"api",
+						"v1",
+						"test123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8443/register-endpoints",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pwd\": \"kf9Du2mIjdiw21kG\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8200/admin/register-endpoints?asd=123",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"admin",
+						"register-endpoints"
+					],
+					"query": [
+						{
+							"key": "asd",
+							"value": "123"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8443/public/openEndpoint Copy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "valid-token"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8200/api/public/ttttt/sssss?asd=123&ttt=yyy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"api",
+						"public",
+						"ttttt",
+						"sssss"
+					],
+					"query": [
+						{
+							"key": "asd",
+							"value": "123"
+						},
+						{
+							"key": "ttt",
+							"value": "yyy"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8443/public/api/v1/totp/generate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let qrImage = pm.response.json().qr;",
+							"pm.visualizer.set(`",
+							"    <img src=\"${qrImage}\" />",
+							"`);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8200/api/auth/totp/generate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"api",
+						"auth",
+						"totp",
+						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://localhost:8443/auth/totp/validate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"token\": \"737347\",\n    \"secret\": \"YVPTEYZ6M7LB4TKHSZPZE2SYLNLLKZIR\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8200/api/auth/totp/validate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"api",
+						"auth",
+						"totp",
+						"validate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8443/test500",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8200/admin/test500",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8200",
+					"path": [
+						"admin",
+						"test500"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

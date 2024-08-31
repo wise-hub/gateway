@@ -1,0 +1,11 @@
+MAINTENANCE=OFF
+
+// PUBLIC ENDPOINTS
+GET,public,/ttttt
+GET,public,/ttttt/sssss
+POST,public,/public/login
+GET,public,/public/accounts
+
+
+// PROTECTED ENDPOINTS
+POST,protected,/test123

@@ -1,0 +1,50 @@
+{
+  "AppGroupName": "fisws",
+  "Version": "1.0.0",
+
+  "Config":
+      [{
+          "EnvType": "TEST",
+
+          "Port": "8200",
+          "LoadEndpointsPwd": "kf9Du2mIjdiw21kG",
+          "InternalWsPwd": "dl0Ti3rjJna0w8ur",
+          "PublicFQDN": "http://localhost:8200/testws-pub",
+          "ProtectedFQDN": "http://localhost:8200/testws",
+          "ReadTimeout": 10,
+          "WriteTimeout": 20,
+          "IdleTimeout": 240,
+          "Database":  {
+              "Server": "192.168.0.100",
+              "Port": "1521",
+              "Service": "orcl",
+              "Username": "db",
+              "Password": "db",
+              "MaxOpenConns": 50,
+              "MaxIdleConns": 40,
+              "ConnMaxLifetime": 30
+          }
+      },
+      {
+          "EnvType": "PROD",
+
+          "Port": "8200",
+          "LoadEndpointsPwd": "kf9Du2mIjdiw21kG",
+          "InternalWsPwd": "dl0Ti3rjJna0w8ur",
+          "PublicFQDN": "http://localhost:8200/testws-pub",
+          "ProtectedFQDN": "http://localhost:8200/testws",
+          "ReadTimeout": 10,
+          "WriteTimeout": 20,
+          "IdleTimeout": 240,
+          "Database":  {
+              "Server": "ex01.asd.asd.asd",
+              "Port": "1521",
+              "Service": "sn",
+              "Username": "usr",
+              "Password": "pwd",
+              "MaxOpenConns": 30,
+              "MaxIdleConns": 20,
+              "ConnMaxLifetime": 30
+          }
+      }]
+}
