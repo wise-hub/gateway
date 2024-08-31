@@ -3,7 +3,13 @@ package configuration
 import (
 	"database/sql"
 	"log"
+	"sync"
 	"time"
+)
+
+var (
+	mu               sync.RWMutex
+	allowedEndpoints map[string]struct{}
 )
 
 type Dependencies struct {

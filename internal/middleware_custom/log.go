@@ -45,9 +45,11 @@ func LogMiddleware(deps *configuration.Dependencies) func(next http.Handler) htt
 					elapsed := time.Since(startTime)
 					logEntry := formatLogEntry(elapsed, http.StatusInternalServerError, r.RemoteAddr, r.Method, path)
 
+					// Log the error and stack trace to the error log
 					deps.ErrorLogger.Println(logEntry)
 					deps.ErrorLogger.Println(errorMsg)
 
+					// Respond with a generic internal server error
 					http.Error(rw, "Internal Server Error", http.StatusInternalServerError)
 				}
 			}()

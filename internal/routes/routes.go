@@ -10,10 +10,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-const endpointsFile = "./cfg/allowed_endpoints.txt"
+const endpointsFile = "./allowed_endpoints.txt"
 
 func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
-	err := loadAllowedEndpoints(endpointsFile)
+	err := configuration.LoadAllowedEndpoints(endpointsFile)
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +37,7 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 			return
 		}
 
-		if err := loadAllowedEndpoints(endpointsFile); err != nil {
+		if err := configuration.LoadAllowedEndpoints(endpointsFile); err != nil {
 			http.Error(w, "Failed to load endpoints", http.StatusInternalServerError)
 		} else {
 			w.WriteHeader(http.StatusOK)
@@ -60,7 +60,6 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 
 	apiGroup.With(middleware_custom.AuthMiddleware).Group(func(api chi.Router) {
 		api.Get("/public/accounts", func(w http.ResponseWriter, r *http.Request) {
-
 			userData, ok := middleware_custom.GetUserDataFromContext(r)
 			if !ok {
 				util.ErrorJSON(w, http.StatusInternalServerError, "User data not found")
@@ -74,7 +73,6 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 
 			util.JSON(w, http.StatusOK, response)
 		})
-
 	})
 
 	// Protected routes

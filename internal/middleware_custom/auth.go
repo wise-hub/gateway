@@ -72,11 +72,11 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 
 	util.UserCache.Set(userData.Token, *userData)
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	response := util.H{
 		"message": "Login successful",
 		"user":    userData,
-	})
+	}
+	util.JSON(w, http.StatusOK, response)
 }
 
 func getUserDataFromDB(userID string) (*util.UserData, error) {
