@@ -26500,3 +26500,4 @@
 2024/08/31 23:37:00 | 200 |   0.04ms |     [::1]:62555 | GET /api/public/accounts
 2024/08/31 23:37:01 | 200 |   0.03ms |     [::1]:62555 | GET /api/public/accounts
 2024/08/31 23:37:01 | 200 |   0.08ms |     [::1]:62555 | GET /api/public/accounts
+2024/08/31 23:46:15 Shutting down server...
