@@ -4,9 +4,15 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"sync"
 
 	"fibank.bg/fis-gateway-ws/internal/configuration"
 	"github.com/go-chi/chi/v5"
+)
+
+var (
+	allowedEndpoints map[string]bool
+	mu               sync.RWMutex
 )
 
 func proxyHandler(proxy *httputil.ReverseProxy, d *configuration.Dependencies, method, context string) http.HandlerFunc {

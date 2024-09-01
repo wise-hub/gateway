@@ -53,9 +53,8 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	})
 
-	// invalidate token for userId - when role changes or user is blocked in db - to call this method
+	// Invalidate token for userId - when role changes or user is blocked in DB
 	r.Post("/admin/invalidate-token", func(w http.ResponseWriter, r *http.Request) {
-		// TODO: add something better
 		if r.Header.Get("pwd") != "12345" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
@@ -76,37 +75,35 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 			"message": "Token invalidated",
 		}
 		util.JSON(w, http.StatusOK, response)
-
 	})
 
-	// for dev purpose print the cache
-	r.Get("admin/cache", func(w http.ResponseWriter, r *http.Request) {
+	// For development purposes - print the cache
+	r.Get("/admin/cache", func(w http.ResponseWriter, r *http.Request) {
 		entries := util.UserCache.GetAllEntries()
 		util.JSON(w, http.StatusOK, entries)
 	})
 
 	apiGroup := chi.NewRouter()
-
 	apiGroup.Post("/public/login", http.HandlerFunc(middleware_custom.LoginAction))
 
-	apiGroup.With(middleware_custom.AuthMiddleware).Group(func(api chi.Router) {
-		api.Get("/public/accounts", func(w http.ResponseWriter, r *http.Request) {
-			userData, ok := middleware_custom.GetUserDataFromContext(r)
-			if !ok {
-				util.ErrorJSON(w, http.StatusInternalServerError, "User data not found")
-				return
-			}
+	// for test purposes auth - remove it after
+	apiGroup.Use(middleware_custom.AuthMiddleware)
 
-			response := util.H{
-				"user":     userData.Username,
-				"accounts": userData.Accounts,
-			}
+	apiGroup.Get("/public/accounts", func(w http.ResponseWriter, r *http.Request) {
+		userData, ok := middleware_custom.GetUserDataFromContext(r)
+		if !ok {
+			util.ErrorJSON(w, http.StatusInternalServerError, "User data not found")
+			return
+		}
 
-			util.JSON(w, http.StatusOK, response)
-		})
+		response := util.H{
+			"user":     userData.Username,
+			"accounts": userData.Accounts,
+		}
+
+		util.JSON(w, http.StatusOK, response)
 	})
 
-	// Protected routes
 	protectedGroup := chi.NewRouter()
 	protectedGroup.Use(middleware_custom.AuthMiddleware)
 	setupProxyRoutes(protectedGroup, d, "protected")
