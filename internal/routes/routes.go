@@ -83,13 +83,14 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 		util.JSON(w, http.StatusOK, entries)
 	})
 
+	r.Post("/public/login", http.HandlerFunc(middleware_custom.LoginAction))
+
 	apiGroup := chi.NewRouter()
-	apiGroup.Post("/public/login", http.HandlerFunc(middleware_custom.LoginAction))
 
 	// for test purposes auth - remove it after
 	apiGroup.Use(middleware_custom.AuthMiddleware)
 
-	apiGroup.Get("/public/accounts", func(w http.ResponseWriter, r *http.Request) {
+	apiGroup.Get("/accounts", func(w http.ResponseWriter, r *http.Request) {
 		userData, ok := middleware_custom.GetUserDataFromContext(r)
 		if !ok {
 			util.ErrorJSON(w, http.StatusInternalServerError, "User data not found")

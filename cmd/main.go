@@ -17,15 +17,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 func main() {
-
 	d, err := configuration.Init()
 	if err != nil {
-		panic(err)
+		logrus.Fatalf("Failed to initialize configuration: %v", err)
 	}
 
 	util.UserCache = util.NewCache()
@@ -39,13 +36,15 @@ func main() {
 	routes.SetupRoutes(r, d)
 
 	s := &http.Server{
-		Addr:           ":" + d.Cfg.Port,
-		Handler:        h2c.NewHandler(r, &http2.Server{}),
-		ReadTimeout:    d.Cfg.ReadTimeout * time.Second,
-		WriteTimeout:   d.Cfg.WriteTimeout * time.Second,
-		IdleTimeout:    d.Cfg.IdleTimeout * time.Second,
-		MaxHeaderBytes: 1 << 20,
+		Addr:              ":" + d.Cfg.Port,
+		Handler:           r,
+		ReadTimeout:       d.Cfg.ReadTimeout * time.Second,
+		WriteTimeout:      d.Cfg.WriteTimeout * time.Second,
+		IdleTimeout:       d.Cfg.IdleTimeout * time.Second,
+		MaxHeaderBytes:    1 << 20, // 1MB
+		ReadHeaderTimeout: 5 * time.Second,
 	}
+	s.SetKeepAlivesEnabled(true)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -62,15 +61,17 @@ func main() {
 		}
 	}()
 
-	log.Println("-----------------------------------------------------------")
-	log.Printf("Starting server in %s environment on port %s", d.Cfg.EnvType, d.Cfg.Port)
-	log.Println("-----------------------------------------------------------")
-
-	logrus.Info("-----------------------------------------------------------")
-	logrus.Infof("Starting server in %s environment on port %s", d.Cfg.EnvType, d.Cfg.Port)
-	logrus.Info("-----------------------------------------------------------")
+	logStartupInfo(d.Cfg.EnvType, d.Cfg.Port)
 
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logrus.Fatalf("Server failed: %v", err)
 	}
+}
+
+func logStartupInfo(envType, port string) {
+	startupMsg := "\n-----------------------------------------------------------\n" +
+		"Starting server in %s environment on port %s\n" +
+		"-----------------------------------------------------------"
+	log.Printf(startupMsg, envType, port)
+	logrus.Infof(startupMsg, envType, port)
 }
