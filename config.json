@@ -5,7 +5,7 @@
   "Config":
       [{
           "EnvType": "TEST",
-
+          "LoggerType": "ALL",
           "Port": "8200",
           "LoadEndpointsPwd": "kf9Du2mIjdiw21kG",
           "InternalWsPwd": "dl0Ti3rjJna0w8ur",
@@ -27,7 +27,7 @@
       },
       {
           "EnvType": "PROD",
-
+          "LoggerType": "ALL",
           "Port": "8200",
           "LoadEndpointsPwd": "kf9Du2mIjdiw21kG",
           "InternalWsPwd": "dl0Ti3rjJna0w8ur",

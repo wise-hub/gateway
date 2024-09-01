@@ -22,4 +22,4 @@ curl --location 'http://localhost:8200/api/public/login' \
 curl --location 'http://localhost:8200/api/cache'
 
 
-gateway % ab -n 10000 -c 100 -H "Authorization: generated_token_from_db" http://localhost:8200/api/cache
+ab -n 10000 -c 100 -H "Authorization: generated_token_from_db" http://localhost:8200/api/cache

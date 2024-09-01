@@ -6,16 +6,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	_ "github.com/sijms/go-ora/v2"
 )
 
 func Init() (*Dependencies, error) {
-	env := flag.String("env", "TEST", "Set the environment type (e.g., TEST, PROD)")
+	env := flag.String("env", "TEST", "Set the environment type (DEV, TEST, PROD)")
 	cfgPath := flag.String("cfg", "./config.json", "Set the configuration file path")
 	flag.Parse()
 
@@ -41,26 +39,9 @@ func Init() (*Dependencies, error) {
 		return nil, err
 	}
 
-	// Set up logging
-	logDir := filepath.Dir(*cfgPath)
-	accessLogFile, err := os.OpenFile(filepath.Join(logDir, "log", "access_log_"+time.Now().Format("2006_01_02")+".log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("Failed to open access log file: %v", err)
-	}
-
-	errorLogFile, err := os.OpenFile(filepath.Join(logDir, "log", "error_log_"+time.Now().Format("2006_01_02")+".log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("Failed to open error log file: %v", err)
-	}
-
-	accessLogger := log.New(accessLogFile, "", log.Ldate|log.Ltime)
-	errorLogger := log.New(errorLogFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-
 	return &Dependencies{
-		Cfg:          curCfg,
-		Db:           db,
-		AccessLogger: accessLogger,
-		ErrorLogger:  errorLogger,
+		Cfg: curCfg,
+		Db:  db,
 	}, nil
 }
 

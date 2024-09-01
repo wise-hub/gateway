@@ -49,14 +49,45 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 		panic("simulating a server error")
 	})
 
-	apiGroup := chi.NewRouter()
+	r.Get("/admin/test401", func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	})
 
-	apiGroup.Post("/public/login", http.HandlerFunc(middleware_custom.LoginAction))
+	// invalidate token for userId - when role changes or user is blocked in db - to call this method
+	r.Post("/admin/invalidate-token", func(w http.ResponseWriter, r *http.Request) {
+		// TODO: add something better
+		if r.Header.Get("pwd") != "12345" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 
-	apiGroup.Get("/cache", func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			UserID string `json:"user_id"`
+		}
+
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "Invalid request", http.StatusBadRequest)
+			return
+		}
+
+		util.UserCache.DeleteTokensByUserID(body.UserID)
+
+		response := util.H{
+			"message": "Token invalidated",
+		}
+		util.JSON(w, http.StatusOK, response)
+
+	})
+
+	// for dev purpose print the cache
+	r.Get("admin/cache", func(w http.ResponseWriter, r *http.Request) {
 		entries := util.UserCache.GetAllEntries()
 		util.JSON(w, http.StatusOK, entries)
 	})
+
+	apiGroup := chi.NewRouter()
+
+	apiGroup.Post("/public/login", http.HandlerFunc(middleware_custom.LoginAction))
 
 	apiGroup.With(middleware_custom.AuthMiddleware).Group(func(api chi.Router) {
 		api.Get("/public/accounts", func(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +111,6 @@ func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 	protectedGroup.Use(middleware_custom.AuthMiddleware)
 	setupProxyRoutes(protectedGroup, d, "protected")
 
-	// Mount API groups
 	r.Mount("/api", apiGroup)
 	r.Mount("/api/v1", protectedGroup)
 }

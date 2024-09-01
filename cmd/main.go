@@ -16,27 +16,26 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
 
 func main() {
+
 	d, err := configuration.Init()
 	if err != nil {
 		panic(err)
 	}
 
-	// Initialize the UserCache
 	util.UserCache = util.NewCache()
+	middleware_custom.SetupLogger(d.Cfg.LoggerType)
 
 	r := chi.NewRouter()
-
-	// Applying middlewares
 	r.Use(middleware_custom.CORSMiddleware)
-	r.Use(middleware_custom.LogMiddleware(d))
+	r.Use(middleware.RequestLogger(&middleware_custom.LogFormatter{}))
 	r.Use(middleware.Recoverer)
 
-	// Setup routes
 	routes.SetupRoutes(r, d)
 
 	s := &http.Server{
@@ -53,23 +52,25 @@ func main() {
 
 	go func() {
 		<-quit
-		d.AccessLogger.Println("Shutting down server...")
+		logrus.Info("Shutting down server...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
 		if err := s.Shutdown(ctx); err != nil {
-			d.ErrorLogger.Fatal("Server forced to shutdown: ", err)
+			logrus.Fatalf("Server forced to shutdown: %v", err)
 		}
 	}()
 
-	d.AccessLogger.Println("-----------------------------------------------------------")
-	d.AccessLogger.Printf("Starting server in %s environment on port %s\n", d.Cfg.EnvType, d.Cfg.Port)
-	d.AccessLogger.Println("-----------------------------------------------------------")
+	log.Println("-----------------------------------------------------------")
+	log.Printf("Starting server in %s environment on port %s", d.Cfg.EnvType, d.Cfg.Port)
+	log.Println("-----------------------------------------------------------")
 
-	log.Printf("Starting server in %s environment on port %s\n", d.Cfg.EnvType, d.Cfg.Port)
+	logrus.Info("-----------------------------------------------------------")
+	logrus.Infof("Starting server in %s environment on port %s", d.Cfg.EnvType, d.Cfg.Port)
+	logrus.Info("-----------------------------------------------------------")
 
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		panic(err)
+		logrus.Fatalf("Server failed: %v", err)
 	}
 }

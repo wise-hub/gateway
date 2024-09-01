@@ -17,6 +17,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
 
+		// read only from cache
 		userData, exists := util.UserCache.Get(token)
 		if !exists {
 			util.ErrorJSON(w, http.StatusUnauthorized, "Not Authorized")
@@ -43,7 +44,7 @@ func GetUserDataFromContext(r *http.Request) (util.UserData, bool) {
 	return userData, ok
 }
 
-// move to login handler
+// TODO: move to login handler
 type LoginRequest struct {
 	User string `json:"user"`
 	Pass string `json:"pass"`
@@ -70,6 +71,7 @@ func LoginAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// save the cache entry
 	util.UserCache.Set(userData.Token, *userData)
 
 	response := util.H{

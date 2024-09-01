@@ -58,6 +58,12 @@ func (c *Cache) Delete(token string) {
 	}
 }
 
+func (c *Cache) DeleteTokensByUserID(userID string) {
+	if token, exists := c.userTokenStore.LoadAndDelete(userID); exists {
+		c.userDataStore.Delete(token)
+	}
+}
+
 func (c *Cache) periodicCleanup() {
 	ticker := time.NewTicker(10 * time.Minute)
 	defer ticker.Stop()

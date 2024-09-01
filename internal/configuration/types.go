@@ -2,7 +2,6 @@ package configuration
 
 import (
 	"database/sql"
-	"log"
 	"sync"
 	"time"
 )
@@ -13,10 +12,8 @@ var (
 )
 
 type Dependencies struct {
-	Cfg          *ConfigItem
-	Db           *sql.DB
-	AccessLogger *log.Logger
-	ErrorLogger  *log.Logger
+	Cfg *ConfigItem
+	Db  *sql.DB
 }
 
 type MainConfig struct {
@@ -28,6 +25,7 @@ type MainConfig struct {
 
 type ConfigItem struct {
 	EnvType          string        `json:"EnvType" validate:"required,oneof=DEV TEST PROD"`
+	LoggerType       string        `json:"LoggerType" validate:"required,oneof=ALL ERR"`
 	Port             string        `json:"Port" validate:"required"`
 	LoadEndpointsPwd string        `json:"LoadEndpointsPwd" validate:"required"`
 	InternalWsPwd    string        `json:"InternalWsPwd" validate:"required"`
