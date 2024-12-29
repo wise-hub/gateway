@@ -2,16 +2,17 @@ package configuration
 
 import (
 	"bufio"
-	"database/sql"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"time"
 
-	_ "github.com/sijms/go-ora/v2"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+// Load and initialize the application configuration
 func Init() (*Dependencies, error) {
 	env := flag.String("env", "TEST", "Set the environment type (DEV, TEST, PROD)")
 	cfgPath := flag.String("cfg", "./config.json", "Set the configuration file path")
@@ -34,51 +35,15 @@ func Init() (*Dependencies, error) {
 		return nil, fmt.Errorf("no configuration found for environment: %s", *env)
 	}
 
-	db, err := connectDb(&curCfg.Database)
+	dbPool, err := connectPostgres(curCfg.Database)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
 	return &Dependencies{
 		Cfg: curCfg,
-		Db:  db,
+		Db:  dbPool,
 	}, nil
-}
-
-func loadCfg(path string) (*MainConfig, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	config := &MainConfig{}
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(config)
-	if err != nil {
-		return nil, err
-	}
-
-	return config, nil
-}
-
-func connectDb(cfg *Database) (*sql.DB, error) {
-	con := fmt.Sprintf("oracle://%s:%s@%s:%s/%s?charset=utf8",
-		cfg.Username,
-		cfg.Password,
-		cfg.Server,
-		cfg.Port,
-		cfg.Service)
-
-	db, err := sql.Open("oracle", con)
-	if err != nil {
-		return nil, err
-	}
-	db.SetMaxOpenConns(cfg.MaxOpenConns)
-	db.SetMaxIdleConns(cfg.MaxIdleConns)
-	db.SetConnMaxLifetime(time.Minute * time.Duration(cfg.ConnMaxLifetime))
-
-	return db, nil
 }
 
 func LoadAllowedEndpoints(filePath string) error {
@@ -101,9 +66,46 @@ func LoadAllowedEndpoints(filePath string) error {
 	return scanner.Err()
 }
 
-func IsEndpointAllowed(endpoint string) bool {
-	mu.RLock()
-	defer mu.RUnlock()
-	_, allowed := allowedEndpoints[endpoint]
-	return allowed
+// Connect to PostgreSQL database using pgxpool
+func connectPostgres(dbCfg Database) (*pgxpool.Pool, error) {
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
+		dbCfg.Username,
+		dbCfg.Password,
+		dbCfg.Server,
+		dbCfg.Port,
+		dbCfg.Service,
+	)
+
+	config, err := pgxpool.ParseConfig(connStr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse PostgreSQL connection string: %w", err)
+	}
+
+	config.MaxConns = int32(dbCfg.MaxOpenConns)
+	config.MaxConnLifetime = dbCfg.ConnMaxLifetime * time.Minute
+
+	pool, err := pgxpool.ConnectConfig(context.Background(), config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+	}
+
+	return pool, nil
+}
+
+// Load the configuration file
+func loadCfg(filePath string) (*MainConfig, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open config file: %w", err)
+	}
+	defer file.Close()
+
+	var cfg MainConfig
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&cfg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse config file: %w", err)
+	}
+
+	return &cfg, nil
 }

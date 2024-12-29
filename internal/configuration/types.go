@@ -1,9 +1,10 @@
 package configuration
 
 import (
-	"database/sql"
 	"sync"
 	"time"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var (
@@ -13,7 +14,7 @@ var (
 
 type Dependencies struct {
 	Cfg *ConfigItem
-	Db  *sql.DB
+	Db  *pgxpool.Pool
 }
 
 type MainConfig struct {

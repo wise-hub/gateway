@@ -1,0 +1,122 @@
+/* General Styles */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f3f3f3;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+/* Centered Login Container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 200px;
+  height: 100%;
+  width: 100%;
+}
+
+.login-card {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px; /* Minimal border radius */
+  width: 200;
+  padding: 30px;
+  text-align: center;
+  border: 1px solid #ddd; /* Subtle border for a corporate look */
+}
+
+/* Title */
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+input.form-control {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px; /* Minimal border radius */
+  box-sizing: border-box;
+}
+
+input.form-control:focus {
+  border-color: #0078d4;
+  outline: none;
+  box-shadow: 0 0 4px rgba(0, 120, 212, 0.4);
+}
+
+/* Primary Button */
+button.btn-primary {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #0078d4;
+  border: none;
+  border-radius: 4px; /* Minimal border radius */
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+button.btn-primary:hover {
+  background-color: #005a9e;
+}
+
+button.btn-primary:active {
+  background-color: #004578;
+}
+
+/* Help and Additional Links */
+.links {
+  margin-top: 15px;
+}
+
+.links a {
+  color: #0078d4;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.additional-links {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.additional-links a {
+  display: block;
+  color: #0078d4;
+  margin-top: 5px;
+  text-decoration: none;
+}
+
+.additional-links a:hover {
+  text-decoration: underline;
+}
