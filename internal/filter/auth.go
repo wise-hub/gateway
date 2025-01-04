@@ -3,11 +3,10 @@ package filter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"fibank.bg/fis-gateway-ws/internal/model"
-	"fibank.bg/fis-gateway-ws/internal/util"
+	"github.com/wise-hub/gateway/internal/model"
+	"github.com/wise-hub/gateway/internal/util"
 )
 
 type contextKey string
@@ -18,8 +17,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		appSoftAuthToken := r.Header.Get("X-Soft-Auth-Token")
-		if appSoftAuthToken == "" {
-			util.ErrorJSON(w, http.StatusUnauthorized, "Missing soft auth token")
+
+		if !util.ValidateSoftAuthToken(appSoftAuthToken, r.UserAgent()) {
+			util.ErrorJSON(w, http.StatusUnauthorized, "Invalid soft auth token-cookie")
 			return
 		}
 
@@ -29,11 +29,6 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		if !util.ValidateSoftAuthToken(appSoftAuthToken, r.UserAgent()) {
-			util.ErrorJSON(w, http.StatusUnauthorized, "Invalid soft auth token")
-			return
-		}
-		fmt.Println(appSessionToken)
 		userData, exists := util.UserCache.Get(appSessionToken.Value)
 		if !exists {
 			util.ErrorJSON(w, http.StatusUnauthorized, "Invalid session token")
@@ -44,6 +39,10 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		if err != nil {
 			util.ErrorJSON(w, http.StatusInternalServerError, "Failed to process user data")
 			return
+		}
+
+		if (appSoftAuthToken != userData.SoftAuthToken) {
+			util.ErrorJSON(w, http.StatusUnauthorized, "Token mismatch")
 		}
 
 		r.Header.Set("USER-METADATA-HEADER", string(userDataJSON))

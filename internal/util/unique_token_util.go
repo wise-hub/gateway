@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 )
 
-func GenerateUniqueToken() (string, error) {
+func GenerateUniqueToken() (string) {
 	randomBytes := make([]byte, 24)
 	_, err := rand.Read(randomBytes)
 	if err != nil {
-		return "", err
+		return ""
 	}
 
-	return base64.RawURLEncoding.EncodeToString(randomBytes), nil
+	return base64.RawURLEncoding.EncodeToString(randomBytes)
 }

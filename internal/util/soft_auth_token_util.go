@@ -46,6 +46,11 @@ func GenerateSoftAuthToken(userAgent string) string {
 }
 
 func ValidateSoftAuthToken(token, userAgent string) bool {
+
+	if token == "" || userAgent == "" {
+		return false
+	}
+
 	parts := strings.Split(token, ".")
 	if len(parts) != 2 {
 		return false

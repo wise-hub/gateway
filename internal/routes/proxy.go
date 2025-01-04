@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"sync"
 
-	"fibank.bg/fis-gateway-ws/internal/configuration"
 	"github.com/go-chi/chi/v5"
+	"github.com/wise-hub/gateway/internal/configuration"
 )
 
 var (

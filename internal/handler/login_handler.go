@@ -3,11 +3,12 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
 	"time"
 
-	"fibank.bg/fis-gateway-ws/internal/repository"
-	"fibank.bg/fis-gateway-ws/internal/util"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/wise-hub/gateway/internal/repository"
+	"github.com/wise-hub/gateway/internal/util"
 )
 
 type MinimalUserData struct {
@@ -19,34 +20,47 @@ type MinimalUserData struct {
 
 func LoginHandler(db *pgxpool.Pool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		csrfToken := r.Header.Get("X-Csrf-Token")
+		if !util.ValidateSoftAuthToken(csrfToken, r.UserAgent()) {
+			util.ErrorJSON(w, http.StatusUnauthorized, "Invalid CSRF token")
+			return
+		}
+
 		var req struct {
 			User string `json:"u"`
 			Pass string `json:"p"`
-			CSRF string `json:"csrf"`
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			util.ErrorJSON(w, http.StatusBadRequest, "Invalid request")
 			return
 		}
-	
-		if !util.ValidateSoftAuthToken(req.CSRF, r.UserAgent()) {
-			util.ErrorJSON(w, http.StatusUnauthorized, "Invalid CSRF token")
+
+		usernameRegex := regexp.MustCompile(`^[a-z0-9]{4,10}$`)
+		if !usernameRegex.MatchString(req.User) {
+			util.ErrorJSON(w, http.StatusBadRequest, "Invalid username")
 			return
 		}
-	
+
+		passwordRegex := regexp.MustCompile(`^.{6,20}$`)
+		if !passwordRegex.MatchString(req.Pass) {
+			util.ErrorJSON(w, http.StatusBadRequest, "Invalid password")
+			return
+		}
+
+		if !util.AllowRequest(req.User) {
+			util.ErrorJSON(w, http.StatusBadRequest, "Rate limit exceeded")
+			return
+		}
+
 		userData, err := repository.GetUserDataFromDB(db, req.User, req.Pass)
 		if err != nil {
-			util.ErrorJSON(w, http.StatusInternalServerError, "Failed to retrieve user data")
+			util.ErrorJSON(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
 		softAuthToken := util.GenerateSoftAuthToken(r.UserAgent())
-		sessionToken, err := util.GenerateUniqueToken()
-		if err != nil {
-			util.ErrorJSON(w, http.StatusInternalServerError, "Failed to generate session token")
-			return
-		}
+		sessionToken := util.GenerateUniqueToken()
 
 		userData.SoftAuthToken = softAuthToken
 		userData.Token = sessionToken

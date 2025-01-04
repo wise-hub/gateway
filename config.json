@@ -1,5 +1,5 @@
 {
-  "AppGroupName": "fisws",
+  "AppGroupName": "gateway",
   "Version": "1.0.0",
 
   "Config": [
@@ -37,7 +37,7 @@
       "WriteTimeout": 20,
       "IdleTimeout": 240,
       "Database": {
-        "Server": "ex01.asd.asd.asd",
+        "Server": "asd.asd.asd.asd",
         "Port": "1521",
         "Service": "sn",
         "Username": "usr",

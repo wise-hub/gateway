@@ -1,4 +1,4 @@
-module fibank.bg/fis-gateway-ws
+module github.com/wise-hub/gateway
 
 go 1.21.2
 

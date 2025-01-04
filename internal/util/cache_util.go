@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"fibank.bg/fis-gateway-ws/internal/model"
+	"github.com/wise-hub/gateway/internal/model"
 )
 
 var UserCache *Cache

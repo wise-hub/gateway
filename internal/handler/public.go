@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"fibank.bg/fis-gateway-ws/internal/util"
+	"github.com/wise-hub/gateway/internal/util"
 )
 
 func PublicHandler(w http.ResponseWriter, r *http.Request) {

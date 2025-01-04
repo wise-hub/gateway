@@ -6,16 +6,14 @@ import (
 	"os"
 	"strings"
 
-	"fibank.bg/fis-gateway-ws/internal/configuration"
-	"fibank.bg/fis-gateway-ws/internal/filter"
-	"fibank.bg/fis-gateway-ws/internal/handler"
-	"fibank.bg/fis-gateway-ws/internal/util"
 	"github.com/go-chi/chi/v5"
+	"github.com/wise-hub/gateway/internal/configuration"
+	"github.com/wise-hub/gateway/internal/filter"
+	"github.com/wise-hub/gateway/internal/handler"
+	"github.com/wise-hub/gateway/internal/util"
 )
 
 const endpointsFile = "./allowed_endpoints.txt"
-
-
 
 func SetupRoutes(r chi.Router, d *configuration.Dependencies) {
 	initializeEndpoints(r)

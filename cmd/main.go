@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"fibank.bg/fis-gateway-ws/internal/configuration"
-	"fibank.bg/fis-gateway-ws/internal/filter"
-	"fibank.bg/fis-gateway-ws/internal/routes"
-	"fibank.bg/fis-gateway-ws/internal/util"
+	"github.com/wise-hub/gateway/internal/configuration"
+	"github.com/wise-hub/gateway/internal/filter"
+	"github.com/wise-hub/gateway/internal/routes"
+	"github.com/wise-hub/gateway/internal/util"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -20,29 +20,25 @@ import (
 )
 
 func main() {
-	// Initialize configuration and dependencies
 	d, err := configuration.Init()
 	if err != nil {
 		logrus.Fatalf("Failed to initialize configuration: %v", err)
 	}
 	defer func() {
 		if d.Db != nil {
-			d.Db.Close() // Ensure the database pool is closed on shutdown
+			d.Db.Close() 
 		}
 	}()
 
-	// Set up caching and logging
 	util.UserCache = util.NewCache()
 	filter.SetupLogger(d.Cfg.LoggerType)
 
-	// Set up routes
 	r := chi.NewRouter()
 	r.Use(filter.CORSMiddleware)
 	r.Use(middleware.RequestLogger(&filter.LogFormatter{}))
 	r.Use(middleware.Recoverer)
 	routes.SetupRoutes(r, d)
 
-	// Configure the HTTP server
 	s := &http.Server{
 		Addr:              ":" + d.Cfg.Port,
 		Handler:           r,
@@ -54,7 +50,6 @@ func main() {
 	}
 	s.SetKeepAlivesEnabled(true)
 
-	// Set up signal handling for graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
@@ -70,16 +65,13 @@ func main() {
 		}
 	}()
 
-	// Log startup information
 	logStartupInfo(d.Cfg.EnvType, d.Cfg.Port)
 
-	// Start the server
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logrus.Fatalf("Server failed: %v", err)
 	}
 }
 
-// Log server startup details
 func logStartupInfo(envType, port string) {
 	startupMsg := "\n-----------------------------------------------------------\n" +
 		"Starting server in %s environment on port %s\n" +

@@ -12,7 +12,6 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-// Load and initialize the application configuration
 func Init() (*Dependencies, error) {
 	env := flag.String("env", "TEST", "Set the environment type (DEV, TEST, PROD)")
 	cfgPath := flag.String("cfg", "./config.json", "Set the configuration file path")
@@ -66,7 +65,6 @@ func LoadAllowedEndpoints(filePath string) error {
 	return scanner.Err()
 }
 
-// Connect to PostgreSQL database using pgxpool
 func connectPostgres(dbCfg Database) (*pgxpool.Pool, error) {
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		dbCfg.Username,
@@ -92,7 +90,6 @@ func connectPostgres(dbCfg Database) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// Load the configuration file
 func loadCfg(filePath string) (*MainConfig, error) {
 	file, err := os.Open(filePath)
 	if err != nil {

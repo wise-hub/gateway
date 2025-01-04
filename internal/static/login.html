@@ -6,7 +6,6 @@
     <meta name="csrf-token" content="{{CSRF_TOKEN}}" />
     <title>Login</title>
     <link rel="stylesheet" href="/static/styles.css" />
-    <script src="/static/login.js" defer></script>
   </head>
   <body>
     <div class="login-container">
@@ -22,6 +21,8 @@
               required
               class="form-control"
               autofocus
+              pattern="[a-z]{4,10}"
+              title="Username must be 4-10 lowercase letters"
             />
           </div>
           <div class="form-group">
@@ -38,5 +39,58 @@
         </form>
       </div>
     </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("login-form");
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content");
+
+          const usernameInput = document.getElementById("user");
+          const passwordInput = document.getElementById("pass");
+
+          const username = usernameInput.value.toLowerCase();
+          usernameInput.value = username;
+
+          const requestBody = {
+            u: username,
+            p: passwordInput.value,
+          };
+
+          try {
+            const response = await fetch("/api/v1/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Csrf-Token": csrfToken,
+              },
+              body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+              const error = await response.json();
+              alert(error.message || "Login failed");
+              return;
+            }
+
+            const responseData = await response.json();
+            if (responseData.userData) {
+              sessionStorage.setItem(
+                "userData",
+                JSON.stringify(responseData.userData)
+              );
+            }
+
+            window.location.href = "/dashboard";
+          } catch (error) {
+            alert("An error occurred: " + error.message);
+          }
+        });
+      });
+    </script>
   </body>
 </html>
